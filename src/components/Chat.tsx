@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { URL } from "../utils/Utils";
-import axios from "axios";
-import { CurrentResultType } from "../Types/ChatResult.type";
+import { ChatBotState } from "../types/ChatBotState.type";
 import { CHAT_HISTORY } from "../utils/Utils";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchQuery } from "../redux/slices/ChatBot";
+import { RootState, AppDispatch } from "../redux/store";
 
 type ChatProps = {
   handleHistoryUpdate: () => void;
@@ -10,12 +11,17 @@ type ChatProps = {
 
 function Chat({ handleHistoryUpdate }: ChatProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [query, setQuery] = useState<string>("");
+  // const [isLoading, setIsLoading] = useState(false);
+  const [userQuery, setUserQuery] = useState<string>("");
   const [currentResult, setCurrentResult] = useState<
-    CurrentResultType | undefined
+    ChatBotState | undefined
   >();
-  const [savedResults, setSavedResults] = useState<CurrentResultType[]>([]);
+  const [savedResults, setSavedResults] = useState<ChatBotState[]>([]);
+
+  const { id, isLoading, query, result, timeStamp, error } = useSelector(
+    (state: RootState) => state.chatBot
+  );
+  const dispatch = useDispatch<AppDispatch>();
 
   // On mount
   useEffect(() => {
@@ -35,41 +41,27 @@ function Chat({ handleHistoryUpdate }: ChatProps) {
     }
   }, [savedResults]);
 
-  // Create payload for URL Options
-  const createPayload = (userQuery: string) => ({
-    contents: [
-      {
-        parts: [{ text: userQuery }],
-      },
-    ],
-  });
-
   // On clicking send button
   const handleSend = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
-    setQuery("");
 
     try {
-      const result = await axios.post(
-        URL,
-        JSON.stringify(createPayload(query)),
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      dispatch(fetchQuery(userQuery));
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
-      // const result = await axios.get("/data/data.json");
-      const response = result.data;
-      console.log(response);
-      console.log(response.candidates[0].content.parts[0].text);
+  useEffect(() => {
+    if (result && !isLoading) {
+      setUserQuery("");
       const queryResult = {
-        id: Date.now(),
+        id,
+        isLoading,
         query,
-        result: response.candidates[0].content.parts[0].text,
-        timeStamp: new Date().toISOString(),
+        result,
+        timeStamp,
+        error,
       };
       setCurrentResult(queryResult);
       setSavedResults((prev) => [...prev, queryResult]);
@@ -78,15 +70,11 @@ function Chat({ handleHistoryUpdate }: ChatProps) {
       window.dispatchEvent(
         new StorageEvent("storage", {
           key: CHAT_HISTORY,
-          newValue: JSON.stringify(savedResults),
+          newValue: JSON.stringify([...savedResults, result]),
         })
       );
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [isLoading, result]);
 
   return (
     <div>
@@ -106,8 +94,8 @@ function Chat({ handleHistoryUpdate }: ChatProps) {
         <form onSubmit={handleSend}>
           <input
             type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            value={userQuery}
+            onChange={(e) => setUserQuery(e.target.value)}
             ref={inputRef}
             className="input"
             placeholder="Ask anything"

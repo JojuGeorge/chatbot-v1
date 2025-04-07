@@ -28,6 +28,9 @@ function Navigation() {
         </label>
       </div>
       {/* --end */}
+      <div className="flex-none">
+        <button className="btn btn-outline">NC</button>
+      </div>
       <div className="flex-1">
         <a className="btn btn-ghost text-xl">AI GPT</a>
       </div>

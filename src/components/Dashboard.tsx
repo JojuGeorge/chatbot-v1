@@ -1,18 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 import Chat from "./Chat";
 import Navigation from "./Navigation";
-import { CurrentResultType } from "../Types/ChatResult.type";
+import { ChatBotState } from "../types/ChatBotState.type";
 import { CHAT_HISTORY } from "../utils/Utils";
 
 function Dashboard() {
-  const [history, setHistory] = useState<CurrentResultType[]>([]);
+  const [history, setHistory] = useState<ChatBotState[]>([]);
 
   const handleHistoryUpdate = useCallback(() => {
-    console.log("update meth called....");
     try {
       const saved = localStorage.getItem(CHAT_HISTORY);
       if (saved) {
-        const parsedHistory = JSON.parse(saved) as CurrentResultType[];
+        const parsedHistory = JSON.parse(saved) as ChatBotState[];
         setHistory(parsedHistory);
         console.log(parsedHistory);
       } else {
@@ -27,11 +26,11 @@ function Dashboard() {
   useEffect(() => {
     handleHistoryUpdate();
     // Listen for storage changes from other tabs/windows
+    // Timeout bcos the local storage is updating with a delay
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === CHAT_HISTORY) {
-        setTimeout(handleHistoryUpdate, 500);
+        setTimeout(handleHistoryUpdate, 100);
       }
-      console.log("storage event called");
     };
 
     window.addEventListener("storage", handleStorageChange);
