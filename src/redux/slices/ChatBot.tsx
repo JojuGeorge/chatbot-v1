@@ -25,7 +25,6 @@ const createPayload = (userQuery: string) => ({
 export const fetchQuery = createAsyncThunk(
   "chatbot/fetchQuery",
   async (query: string) => {
-    // try {
     const result = await axios.post(URL, createPayload(query), {
       headers: {
         "Content-Type": "application/json",
@@ -36,21 +35,8 @@ export const fetchQuery = createAsyncThunk(
     const responseText = result.data.candidates[0].content.parts[0].text;
     console.log(responseText);
     return responseText;
-    // } catch (err) {
-    //   const error = err as AxiosError;
-    //   return error.message || "An error occurred";
-    // }
   }
 );
-
-// interface ChatBotState {
-//   id: number;
-//   isLoading: boolean;
-//   query: string;
-//   result: string;
-//   timeStamp: string;
-//   error: string | null;
-// }
 
 interface PayloadAction<T> {
   payload: T;

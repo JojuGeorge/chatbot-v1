@@ -1,6 +1,6 @@
 import React from "react";
 import Theme from "../utils/Theme";
-import Drawer from "./Drawer";
+import NewChat from "../utils/NewChat";
 
 function Navigation() {
   return (
@@ -29,7 +29,8 @@ function Navigation() {
       </div>
       {/* --end */}
       <div className="flex-none">
-        <button className="btn btn-outline">NC</button>
+        {/* <button className="btn btn-outline">NC</button> */}
+        <NewChat />
       </div>
       <div className="flex-1">
         <a className="btn btn-ghost text-xl">AI GPT</a>

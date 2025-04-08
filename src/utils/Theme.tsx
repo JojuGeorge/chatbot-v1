@@ -1,7 +1,7 @@
 import React from "react";
 
 function Theme() {
-  const [theme, setTheme] = React.useState("light");
+  const [theme, setTheme] = React.useState("dark");
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
