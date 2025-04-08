@@ -24,7 +24,7 @@ function Chat({ handleHistoryUpdate }: ChatProps) {
     []
   );
 
-  const { id, isLoading, query, result, timeStamp, error } = useSelector(
+  const { id, isLoading, query, title, result, timeStamp, error } = useSelector(
     (state: RootState) => state.chatBot
   );
   const dispatch = useDispatch<AppDispatch>();
@@ -77,6 +77,7 @@ function Chat({ handleHistoryUpdate }: ChatProps) {
         id,
         isLoading,
         query,
+        title,
         result,
         timeStamp,
         error,

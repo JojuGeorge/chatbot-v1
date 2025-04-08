@@ -8,6 +8,7 @@ const initialState = {
   id: 0,
   isLoading: false,
   query: "",
+  title: "",
   result: "",
   timeStamp: "",
   error: null,
@@ -17,7 +18,13 @@ const initialState = {
 const createPayload = (userQuery: string) => ({
   contents: [
     {
-      parts: [{ text: userQuery }],
+      parts: [
+        {
+          text:
+            userQuery +
+            "Then, generate a title for the explanation. The title should be no more than 5 words long, and the title should summarize this conversation in 3-5 words or a short phrase that best describes the topic or theme. Respond in JSON format with the keys 'explanation' and 'title'. The explanation is normal as always",
+        },
+      ],
     },
   ],
 });
@@ -32,8 +39,13 @@ export const fetchQuery = createAsyncThunk(
     });
 
     console.log(result.data);
-    const responseText = result.data.candidates[0].content.parts[0].text;
-    console.log(responseText);
+    let responseText = result.data.candidates[0].content.parts[0].text;
+    responseText = responseText
+      .replace("```json", "")
+      .replace("```", "")
+      .trim();
+    responseText = JSON.parse(responseText);
+    console.log(responseText, responseText.title, responseText.explanation);
     return responseText;
   }
 );
@@ -41,6 +53,11 @@ export const fetchQuery = createAsyncThunk(
 interface PayloadAction<T> {
   payload: T;
   type: string;
+}
+
+interface QueryResponse {
+  title: string;
+  explanation: string;
 }
 
 const chatBotSlice = createSlice({
@@ -58,9 +75,10 @@ const chatBotSlice = createSlice({
       })
       .addCase(
         fetchQuery.fulfilled,
-        (state: ChatBotState, action: PayloadAction<string>) => {
+        (state: ChatBotState, action: PayloadAction<QueryResponse>) => {
           state.isLoading = false;
-          state.result = action.payload;
+          state.title = action.payload.title;
+          state.result = action.payload.explanation;
         }
       )
       .addCase(fetchQuery.rejected, (state, action) => {

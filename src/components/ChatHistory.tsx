@@ -29,7 +29,7 @@ function ChatHistory({ item }: ChatHistoryProps) {
     <>
       <li>
         <span>
-          {item.query}
+          {item.title}
           <span>
             <button className="btn btn-circle" onClick={handleItemDelete}>
               Del
