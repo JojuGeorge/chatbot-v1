@@ -1,5 +1,5 @@
-import React from "react";
 import { ChatBotState } from "../types/ChatBotState.type";
+import { CHAT_HISTORY } from "../utils/Utils";
 
 type ChatHistoryProps = {
   item: ChatBotState;
@@ -7,7 +7,23 @@ type ChatHistoryProps = {
 
 function ChatHistory({ item }: ChatHistoryProps) {
   const handleItemDelete = () => {
-    console.log(item.id, item.query);
+    const history = localStorage.getItem(CHAT_HISTORY);
+    const id = item.id;
+    if (history) {
+      const parsedHistory = JSON.parse(history);
+      const filteredHistory = parsedHistory.filter(
+        (item: ChatBotState) => item.id !== id
+      );
+      localStorage.setItem(CHAT_HISTORY, JSON.stringify(filteredHistory));
+
+      // Dispatch storage event to trigger re-render
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: CHAT_HISTORY,
+          newValue: JSON.stringify(filteredHistory),
+        })
+      );
+    }
   };
   return (
     <>
