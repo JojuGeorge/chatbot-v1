@@ -2,16 +2,18 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 import { URL } from "../../utils/Utils";
-import { ChatBotState } from "../../types/ChatBotState.type";
+import { Message, Chat, ChatState } from "../../types/Chat.type";
 
 const initialState = {
-  id: 0,
-  isLoading: false,
-  query: "",
-  title: "",
-  result: "",
-  timeStamp: "",
-  error: null,
+  chats: [
+    {
+      chatId: "chat_" + crypto.randomUUID(),
+      title: "",
+      createdAt: new Date().toISOString(),
+      messages: [],
+    },
+  ],
+  currentChatId: "",
 };
 
 // Create payload for URL Options
@@ -47,40 +49,81 @@ export const fetchQuery = createAsyncThunk(
   }
 );
 
-interface PayloadAction<T> {
-  payload: T;
-  type: string;
-}
-
-interface QueryResponse {
-  title: string;
-  explanation: string;
-}
-
 const chatBotSlice = createSlice({
   name: "chatBot",
-  initialState: initialState as ChatBotState,
-  reducers: {},
+  initialState: initialState as ChatState,
+  reducers: {
+    newChat: (state) => {
+      const newChat: Chat = {
+        chatId: "chat_" + crypto.randomUUID(),
+        title: "",
+        createdAt: new Date().toISOString(),
+        messages: [],
+      };
+      state.chats.push(newChat);
+      state.currentChatId = newChat.chatId;
+    },
+    deleChat: (state, action) => {
+      const idToDelete = action.payload;
+      state.chats = state.chats.filter((chat) => chat.chatId !== idToDelete);
+
+      if (state.currentChatId == idToDelete) {
+        state.currentChatId = null;
+      }
+    },
+    clearChatHistory: (state) => {
+      state.chats = [];
+      state.currentChatId = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchQuery.pending, (state: ChatBotState, action) => {
-        state.isLoading = true;
-        state.id = Date.now(); // Generate unique ID using timestamp
-        state.timeStamp = new Date().toISOString();
-        state.query = action.meta.arg;
-        state.error = null;
-      })
-      .addCase(
-        fetchQuery.fulfilled,
-        (state: ChatBotState, action: PayloadAction<QueryResponse>) => {
-          state.isLoading = false;
-          // state.title = action.payload.title;
-          state.result = action.payload;
+      .addCase(fetchQuery.pending, (state, action) => {
+        if (state.currentChatId) {
+          const currentChat = state.chats.find(
+            (chat) => chat.chatId === state.currentChatId
+          );
+          if (currentChat) {
+            const newMessage = {
+              msgId: "msg_" + crypto.randomUUID(),
+              isLoading: true,
+              query: action.meta.arg,
+              result: "",
+              error: null,
+            };
+
+            currentChat.messages.push(newMessage);
+          }
         }
-      )
+      })
+      .addCase(fetchQuery.fulfilled, (state, action) => {
+        if (state.currentChatId) {
+          const currentChat = state.chats.find(
+            (chat) => chat.chatId === state.currentChatId
+          );
+
+          if (currentChat && currentChat.messages.length > 0) {
+            const lastMessage =
+              currentChat.messages[currentChat.messages.length - 1];
+            lastMessage.isLoading = false;
+            lastMessage.result = action.payload;
+          }
+        }
+      })
       .addCase(fetchQuery.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || "An error occurred";
+        if (state.currentChatId) {
+          const currentChat = state.chats.find(
+            (chat) => chat.chatId === state.currentChatId
+          );
+
+          if (currentChat && currentChat.messages.length > 0) {
+            const lastMessage =
+              currentChat.messages[currentChat.messages.length - 1];
+            lastMessage.isLoading = false;
+            lastMessage.result = "";
+            lastMessage.error = action.error.message || "An error occured";
+          }
+        }
       });
   },
 });
