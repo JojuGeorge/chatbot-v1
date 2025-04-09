@@ -20,9 +20,7 @@ const createPayload = (userQuery: string) => ({
     {
       parts: [
         {
-          text:
-            userQuery +
-            "Then, generate a title for the explanation. The title should be no more than 5 words long, and the title should summarize this conversation in 3-5 words or a short phrase that best describes the topic or theme. Respond in JSON format with the keys 'explanation' and 'title'. The explanation is normal as always",
+          text: userQuery,
         },
       ],
     },
@@ -32,21 +30,20 @@ const createPayload = (userQuery: string) => ({
 export const fetchQuery = createAsyncThunk(
   "chatbot/fetchQuery",
   async (query: string) => {
-    const result = await axios.post(URL, createPayload(query), {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      const result = await axios.post(URL, createPayload(query), {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    console.log(result.data);
-    let responseText = result.data.candidates[0].content.parts[0].text;
-    responseText = responseText
-      .replace("```json", "")
-      .replace("```", "")
-      .trim();
-    responseText = JSON.parse(responseText);
-    console.log(responseText, responseText.title, responseText.explanation);
-    return responseText;
+      console.log("Raw response:", result.data);
+      const responseText = result.data.candidates[0].content.parts[0].text;
+      return responseText;
+    } catch (error) {
+      console.error("Fetch query error:", error);
+      throw error;
+    }
   }
 );
 
@@ -77,8 +74,8 @@ const chatBotSlice = createSlice({
         fetchQuery.fulfilled,
         (state: ChatBotState, action: PayloadAction<QueryResponse>) => {
           state.isLoading = false;
-          state.title = action.payload.title;
-          state.result = action.payload.explanation;
+          // state.title = action.payload.title;
+          state.result = action.payload;
         }
       )
       .addCase(fetchQuery.rejected, (state, action) => {
