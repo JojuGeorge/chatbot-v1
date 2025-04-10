@@ -99,7 +99,7 @@ const chatBotSlice = createSlice({
         createdAt: new Date().toISOString(),
         messages: [],
       };
-      state.chats.push(newChat);
+      state.chats.unshift(newChat);
       state.currentChatId = newChat.chatId;
       state.isLoading = false;
     },
@@ -108,7 +108,8 @@ const chatBotSlice = createSlice({
       state.chats = state.chats.filter((chat) => chat.chatId !== idToDelete);
 
       if (state.currentChatId === idToDelete) {
-        state.currentChatId = state.chats[state.chats.length - 1].chatId;
+        state.currentChatId =
+          state.chats.length > 0 ? state.chats[0].chatId : null;
       }
     },
     clearChatHistory: (state) => {
@@ -116,7 +117,7 @@ const chatBotSlice = createSlice({
       state.currentChatId = null;
       state.isLoading = false;
     },
-    initializeCurrentChatId: (state, action) => {
+    setCurrentChatId: (state, action) => {
       state.currentChatId = action.payload;
     },
   },
@@ -200,11 +201,7 @@ const chatBotSlice = createSlice({
   },
 });
 
-export const {
-  newChat,
-  deleteChat,
-  clearChatHistory,
-  initializeCurrentChatId,
-} = chatBotSlice.actions;
+export const { newChat, deleteChat, clearChatHistory, setCurrentChatId } =
+  chatBotSlice.actions;
 
 export default chatBotSlice.reducer;
