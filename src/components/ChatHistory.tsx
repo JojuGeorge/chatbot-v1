@@ -1,43 +1,46 @@
-import { ChatBotState } from "../types/ChatBotState.type";
-import { CHAT_HISTORY } from "../utils/Utils";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "../redux/store";
+import { deleteChat } from "../redux/slices/ChatBot";
 
-type ChatHistoryProps = {
-  item: ChatBotState;
-};
+function ChatHistory() {
+  const { chats } = useSelector((state: RootState) => state.chatBot);
+  const [chatHistory, setChatHistory] = useState(chats);
+  const dispatch = useDispatch<AppDispatch>();
 
-function ChatHistory({ item }: ChatHistoryProps) {
-  const handleItemDelete = () => {
-    const history = localStorage.getItem(CHAT_HISTORY);
-    const id = item.id;
-    if (history) {
-      const parsedHistory = JSON.parse(history);
-      const filteredHistory = parsedHistory.filter(
-        (item: ChatBotState) => item.id !== id
-      );
-      localStorage.setItem(CHAT_HISTORY, JSON.stringify(filteredHistory));
+  useEffect(() => {
+    setChatHistory(chats);
+  }, [chats]);
 
-      // Dispatch storage event to trigger re-render
-      window.dispatchEvent(
-        new StorageEvent("storage", {
-          key: CHAT_HISTORY,
-          newValue: JSON.stringify(filteredHistory),
-        })
-      );
-    }
+  const handleItemDelete = (chatId: string) => {
+    dispatch(deleteChat(chatId));
   };
+
   return (
-    <>
-      <li>
-        <span>
-          {item.query}
-          <span>
-            <button className="btn btn-circle" onClick={handleItemDelete}>
-              Del
-            </button>
-          </span>
-        </span>
-      </li>
-    </>
+    <div className="p-4">
+      <div className="mb-4">
+        <h2 className="text-xl font-bold">Chat History</h2>
+      </div>
+      <ul className="space-y-2">
+        {chatHistory.length > 0 &&
+          chats.map((chat) => (
+            <li
+              key={chat.chatId}
+              className="flex flex-row items-center gap-2 p-2 hover:bg-base-200 rounded-lg cursor-pointer"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-sm truncate">{chat.title}</p>
+              </div>
+              <button
+                className="btn btn-outline btn-secondary btn-sm shrink-0"
+                onClick={() => handleItemDelete(chat.chatId)}
+              >
+                Del
+              </button>
+            </li>
+          ))}
+      </ul>
+    </div>
   );
 }
 

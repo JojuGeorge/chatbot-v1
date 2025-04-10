@@ -29,7 +29,6 @@ function Navigation() {
       </div>
       {/* --end */}
       <div className="flex-none">
-        {/* <button className="btn btn-outline">NC</button> */}
         <NewChat />
       </div>
       <div className="flex-1">

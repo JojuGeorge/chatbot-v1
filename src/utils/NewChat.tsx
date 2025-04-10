@@ -1,18 +1,14 @@
 import React from "react";
 import { CURRENT_CHAT } from "./Utils";
+import { newChat } from "../redux/slices/ChatBot";
+import { useDispatch, UseDispatch } from "react-redux";
 
 function NewChat() {
   const handleNewChat = () => {
-    localStorage.setItem(CURRENT_CHAT, JSON.stringify([]));
-
-    // Dispatch storage event to trigger re-render
-    window.dispatchEvent(
-      new StorageEvent("storage", {
-        key: CURRENT_CHAT,
-        newValue: JSON.stringify([]),
-      })
-    );
+    dispatch(newChat());
   };
+
+  const dispatch = useDispatch();
 
   return (
     <button className="btn btn-circle" onClick={handleNewChat} title="New Chat">
