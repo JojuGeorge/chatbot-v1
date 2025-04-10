@@ -19,10 +19,7 @@ const loadState = (): ChatState => {
     }
     const parsedState = JSON.parse(serializedState) as Chat[];
     // Set currentChatId to the latest chat or null if empty
-    const currentChatId =
-      parsedState.length > 0
-        ? parsedState[parsedState.length - 1].chatId
-        : null;
+    const currentChatId = parsedState.length > 0 ? parsedState[0].chatId : null;
     return {
       chats: parsedState,
       currentChatId: currentChatId, // Initialize currentChatId based on loaded state

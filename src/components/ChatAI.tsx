@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { CHAT_HISTORY } from "../utils/Utils";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchQuery } from "../redux/slices/ChatBot";
+import { fetchQuery, setCurrentChatId } from "../redux/slices/ChatBot";
 import { RootState, AppDispatch } from "../redux/store";
 
 function ChatAI() {
