@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-import { URL, CHAT_HISTORY } from "../../utils/Utils";
+import { URL, CHAT_HISTORY, NEW_TITLE, QUERY_OUTLINE } from "../../utils/Utils";
 import { Message, Chat, ChatState } from "../../types/Chat.type";
 import { isSameDate } from "../../utils/IsSameDate";
 
@@ -45,7 +45,7 @@ const createPayload = (userQuery: string) => ({
     {
       parts: [
         {
-          text: userQuery,
+          text: QUERY_OUTLINE + userQuery,
         },
       ],
     },
@@ -70,8 +70,15 @@ export const fetchQuery = createAsyncThunk(
         candidates.length > 0 &&
         candidates[0].content?.parts?.length > 0
       ) {
-        const responseText = candidates[0].content.parts[0].text;
-        return responseText;
+        const response = candidates[0].content.parts[0].text;
+        const responseText = response.substring(
+          response.indexOf("{"),
+          response.lastIndexOf("}") + 1
+        );
+        console.log(responseText);
+        const parsedResponse = JSON.parse(responseText);
+        console.log(parsedResponse);
+        return parsedResponse;
       } else {
         console.error("Unexpected response structure:", result.data);
         throw new Error("Failed to parse response from API.");
@@ -93,9 +100,7 @@ const chatBotSlice = createSlice({
       if (state?.chats[0]?.messages.length > 0) {
         const newChat: Chat = {
           chatId: "chat_" + crypto.randomUUID(),
-          title: `Chat@ ${new Date(
-            new Date().toISOString()
-          ).toLocaleDateString()}`,
+          title: NEW_TITLE,
           createdAt: new Date().toISOString(),
           messages: [],
         };
@@ -151,7 +156,7 @@ const chatBotSlice = createSlice({
           // Create a new chat for today if none exists
           const newChatEntry: Chat = {
             chatId: "chat_" + crypto.randomUUID(),
-            title: `Chat@ ${new Date(today).toLocaleDateString()}`, // Or generate a better title
+            title: NEW_TITLE,
             createdAt: today,
             messages: [],
           };
@@ -178,11 +183,17 @@ const chatBotSlice = createSlice({
           (chat) => chat.chatId === state.currentChatId
         );
 
+        if (currentChat) {
+          if (currentChat.title === NEW_TITLE) {
+            currentChat.title = action.payload.title;
+          }
+        }
+
         if (currentChat && currentChat.messages.length > 0) {
           // Update the last message (which was added in pending)
           const lastMessage =
             currentChat.messages[currentChat.messages.length - 1];
-          lastMessage.result = action.payload;
+          lastMessage.result = action.payload.explanation;
           lastMessage.error = null; // Clear any previous error
         }
       })
