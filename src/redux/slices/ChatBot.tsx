@@ -91,17 +91,23 @@ const chatBotSlice = createSlice({
   initialState: initialState as ChatState,
   reducers: {
     newChat: (state) => {
-      const newChat: Chat = {
-        chatId: "chat_" + crypto.randomUUID(),
-        title: `Chat@ ${new Date(
-          new Date().toISOString()
-        ).toLocaleDateString()}`,
-        createdAt: new Date().toISOString(),
-        messages: [],
-      };
-      state.chats.unshift(newChat);
-      state.currentChatId = newChat.chatId;
-      state.isLoading = false;
+      // check if already a chat with empty msg[] present
+      // to avoid infinite new chat creation
+      if (state?.chats[0]?.messages.length > 0) {
+        const newChat: Chat = {
+          chatId: "chat_" + crypto.randomUUID(),
+          title: `Chat@ ${new Date(
+            new Date().toISOString()
+          ).toLocaleDateString()}`,
+          createdAt: new Date().toISOString(),
+          messages: [],
+        };
+        state.chats.unshift(newChat);
+        state.currentChatId = newChat.chatId;
+        state.isLoading = false;
+      } else {
+        state.currentChatId = state?.chats[0]?.chatId;
+      }
     },
     deleteChat: (state, action) => {
       const idToDelete = action.payload;
