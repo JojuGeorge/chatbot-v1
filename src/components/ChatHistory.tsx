@@ -6,6 +6,7 @@ import {
   setCurrentChatId,
   clearChatHistory,
 } from "../redux/slices/ChatBot";
+import "../styles/chatHistory.css";
 
 function ChatHistory() {
   const { chats, currentChatId } = useSelector(
@@ -49,16 +50,12 @@ function ChatHistory() {
             <li
               key={chat.chatId}
               className={`flex flex-row items-center gap-2 p-2 rounded-lg   ${
-                chat.chatId === currentChatId && "bg-info-content"
+                chat.chatId === currentChatId && "selected"
               }`}
+              onClick={() => handleChatHistorySelection(chat.chatId)}
             >
               <div className="flex-1 min-w-0 hover:bg-transparent active:!bg-transparent">
-                <p
-                  className="text-sm truncate"
-                  onClick={() => handleChatHistorySelection(chat.chatId)}
-                >
-                  {chat.title}
-                </p>
+                <p className="text-sm truncate">{chat.title}</p>
               </div>
               <button
                 className="btn btn-outline btn-secondary btn-sm shrink-0"

@@ -1,0 +1,6 @@
+[data-theme="light"] .selected {
+  background-color: #c7c7c7; /* Light mode selection */
+}
+[data-theme="dark"] .selected {
+  background-color: #334155; /* Dark mode selection */
+}
