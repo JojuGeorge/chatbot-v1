@@ -52,9 +52,11 @@ function ChatHistory() {
               className={`flex flex-row items-center gap-2 p-2 rounded-lg   ${
                 chat.chatId === currentChatId && "selected"
               }`}
-              onClick={() => handleChatHistorySelection(chat.chatId)}
             >
-              <div className="flex-1 min-w-0 hover:bg-transparent active:!bg-transparent">
+              <div
+                onClick={() => handleChatHistorySelection(chat.chatId)}
+                className="flex-1 min-w-0 hover:bg-transparent active:!bg-transparent"
+              >
                 <p className="text-sm truncate">{chat.title}</p>
               </div>
               <button

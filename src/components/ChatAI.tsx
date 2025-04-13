@@ -3,10 +3,14 @@ import { CHAT_HISTORY } from "../utils/Utils";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchQuery, setCurrentChatId } from "../redux/slices/ChatBot";
 import { RootState, AppDispatch } from "../redux/store";
+import { Chat } from "../types/Chat.type";
 
 function ChatAI() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [userQuery, setUserQuery] = useState<string>("");
+  const [currentChatDetails, setCurrentChatDetails] = useState<
+    Chat | undefined
+  >();
 
   const { chats, currentChatId, isLoading } = useSelector(
     (state: RootState) => state.chatBot
@@ -15,6 +19,12 @@ function ChatAI() {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+
     try {
       localStorage.setItem(CHAT_HISTORY, JSON.stringify(chats));
       console.log("Chat history saved to localStorage:", chats);
@@ -23,6 +33,11 @@ function ChatAI() {
     }
   }, [chats]);
 
+  useEffect(() => {
+    inputRef.current?.focus();
+    setCurrentChatDetails(chats.find((chat) => chat.chatId === currentChatId));
+  }, [chats, currentChatId]);
+
   const handleSend = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!userQuery.trim()) return;
@@ -30,10 +45,6 @@ function ChatAI() {
     dispatch(fetchQuery(userQuery));
     setUserQuery("");
   };
-
-  const currentChatDetails = chats.find(
-    (chat) => chat.chatId === currentChatId
-  );
 
   return (
     <div className="flex flex-col h-full p-4">
