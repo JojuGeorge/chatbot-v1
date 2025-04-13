@@ -102,6 +102,7 @@ const chatBotSlice = createSlice({
           chatId: "chat_" + crypto.randomUUID(),
           title: NEW_TITLE,
           createdAt: new Date().toISOString(),
+          // createdAt: "2025-04-12T17:53:34.205Z",
           messages: [],
         };
         state.chats.unshift(newChat);
