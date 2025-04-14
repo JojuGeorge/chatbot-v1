@@ -140,20 +140,19 @@ const chatBotSlice = createSlice({
         // Find if a chat for today already exists
         // let todayChat = state.chats.find(chat => isSameDate(chat.createdAt, today));
 
-        let todayChat;
+        let currentChat;
         if (state.currentChatId) {
-          todayChat = state.chats.find(
+          currentChat = state.chats.find(
             (chat) => chat.chatId === state.currentChatId
           );
+          // if old chat edit then change its created at
+          if (currentChat) currentChat.createdAt = today;
         } else {
-          todayChat = state.chats.find((chat) =>
-            isSameDate(chat.createdAt, today)
-          );
-          todayChat = state.chats.find((chat) =>
+          currentChat = state.chats.find((chat) =>
             isSameDate(chat.createdAt, today)
           );
         }
-        if (!todayChat) {
+        if (!currentChat) {
           // Create a new chat for today if none exists
           const newChatEntry: Chat = {
             chatId: "chat_" + crypto.randomUUID(),
@@ -161,12 +160,12 @@ const chatBotSlice = createSlice({
             createdAt: today,
             messages: [],
           };
-          state.chats.push(newChatEntry);
-          todayChat = newChatEntry; // Use the newly created chat
+          state.chats.unshift(newChatEntry);
+          currentChat = newChatEntry; // Use the newly created chat
         }
 
         // Set currentChatId to today's chat
-        state.currentChatId = todayChat.chatId;
+        state.currentChatId = currentChat.chatId;
 
         // Add the user message placeholder
         const newMessage: Message = {
@@ -175,7 +174,14 @@ const chatBotSlice = createSlice({
           result: "", // Result will be filled in fulfilled/rejected
           error: null,
         };
-        todayChat.messages.push(newMessage); // Add message to today's chat
+        currentChat.messages.push(newMessage); // Add message to today's chat
+
+        // move to first item of array when ever a new chat created or existing chat is edited
+        const index = state.chats.indexOf(currentChat);
+        if (index !== -1) {
+          state.chats.splice(index, 1);
+          state.chats.unshift(currentChat);
+        }
       })
       .addCase(fetchQuery.fulfilled, (state, action) => {
         state.isLoading = false;
