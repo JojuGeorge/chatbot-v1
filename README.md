@@ -60,3 +60,11 @@
 #### Collapsible Sidebar
 
 ![Sidebar Collapse](public/ScreenShots/6%20sidebar%20collapse.png)
+
+#### Send Button Active | Disable
+
+![Button active](public/ScreenShots/7%20Active%20btn.png)
+
+#### Loading Indicators
+
+![Loading Indicators](public/ScreenShots/8%20Loading.png)
