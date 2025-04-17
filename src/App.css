@@ -2,6 +2,11 @@
 @plugin "daisyui" {
   themes: light --default, dark --prefersdark;
 }
+
+* {
+  font-size: small;
+}
+
 /* #root {
   max-width: 1280px;
   margin: 0 auto;

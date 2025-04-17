@@ -52,43 +52,152 @@ const createPayload = (userQuery: string) => ({
   ],
 });
 
+////////////////////////////////////
+// First, define more specific types for the Gemini API response
+interface GeminiContentPart {
+  text: string;
+}
+
+interface GeminiContent {
+  parts: GeminiContentPart[];
+}
+
+interface GeminiCandidate {
+  content: GeminiContent;
+}
+
+interface GeminiResponse {
+  candidates?: GeminiCandidate[];
+  // Add other possible response fields
+}
+
+// Enhanced fetchQuery with better parsing and error handling
 export const fetchQuery = createAsyncThunk(
   "chatbot/fetchQuery",
-  async (query: string) => {
+  async (query: string, { rejectWithValue }) => {
     try {
-      const result = await axios.post(URL, createPayload(query), {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const result = await axios.post<GeminiResponse>(
+        URL,
+        createPayload(query),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       console.log("Raw response:", result.data);
-      // Handle potential variations in response structure safely
-      const candidates = result.data?.candidates;
-      if (
-        candidates &&
-        candidates.length > 0 &&
-        candidates[0].content?.parts?.length > 0
-      ) {
-        const response = candidates[0].content.parts[0].text;
-        const responseText = response.substring(
-          response.indexOf("{"),
-          response.lastIndexOf("}") + 1
-        );
-        console.log(responseText);
-        const parsedResponse = JSON.parse(responseText);
-        console.log(parsedResponse);
+
+      // Safely extract the response text
+      const responseText = extractResponseText(result.data);
+
+      try {
+        // Try to parse as JSON
+        const parsedResponse = safeJsonParse(responseText);
         return parsedResponse;
-      } else {
-        console.error("Unexpected response structure:", result.data);
-        throw new Error("Failed to parse response from API.");
+      } catch (parseError) {
+        console.warn("Response wasn't JSON, returning as plain text");
+        return {
+          title: "Response",
+          explanation: responseText,
+        };
       }
     } catch (error) {
-      console.error("Fetch query error:", error);
-      throw error;
+      if (axios.isAxiosError(error)) {
+        console.error("API Error:", error.response?.data || error.message);
+        return rejectWithValue({
+          message: error.response?.data?.error?.message || error.message,
+          status: error.response?.status,
+        });
+      }
+      console.error("Unexpected Error:", error);
+      return rejectWithValue({
+        message: "An unexpected error occurred",
+        status: 500,
+      });
     }
   }
 );
+
+// Helper functions
+function extractResponseText(data: GeminiResponse): string {
+  if (!data.candidates || data.candidates.length === 0) {
+    throw new Error("No candidates in response");
+  }
+
+  const firstCandidate = data.candidates[0];
+  if (!firstCandidate.content?.parts?.length) {
+    throw new Error("No content parts in candidate");
+  }
+
+  return firstCandidate.content.parts[0].text;
+}
+
+function safeJsonParse(text: string): any {
+  // First try parsing directly
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    // If that fails, try cleaning the string
+    const cleaned = text
+      .replace(/[\u0000-\u001F\u007F-\u009F]/g, "") // Remove control chars
+      .replace(/(\\n|\\t|\\r)/g, "") // Remove escaped whitespace
+      .trim();
+
+    // Look for JSON-like content
+    const jsonStart = cleaned.indexOf("{");
+    const jsonEnd = cleaned.lastIndexOf("}");
+
+    if (jsonStart >= 0 && jsonEnd > jsonStart) {
+      const potentialJson = cleaned.slice(jsonStart, jsonEnd + 1);
+      try {
+        return JSON.parse(potentialJson);
+      } catch (e) {
+        throw new Error(`Could not parse as JSON: ${potentialJson}`);
+      }
+    }
+
+    throw new Error("No valid JSON found in response");
+  }
+}
+
+// export const fetchQuery = createAsyncThunk(
+//   "chatbot/fetchQuery",
+//   async (query: string) => {
+//     try {
+//       const result = await axios.post(URL, createPayload(query), {
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       });
+
+//       console.log("Raw response:", result.data);
+//       // Handle potential variations in response structure safely
+//       const candidates = result.data?.candidates;
+//       if (
+//         candidates &&
+//         candidates.length > 0 &&
+//         candidates[0].content?.parts?.length > 0
+//       ) {
+//         const response = candidates[0].content.parts[0].text;
+//         const responseText = response.substring(
+//           response.indexOf("{"),
+//           response.lastIndexOf("}") + 1
+//         );
+//         console.log(responseText);
+//         const parsedResponse = JSON.parse(responseText);
+//         console.log(parsedResponse);
+//         return parsedResponse;
+//       } else {
+//         console.error("Unexpected response structure:", result.data);
+//         throw new Error("Failed to parse response from API.");
+//       }
+//     } catch (error) {
+//       console.error("Fetch query error:", error);
+//       throw error;
+//     }
+//   }
+// );
 
 const chatBotSlice = createSlice({
   name: "chatBot",

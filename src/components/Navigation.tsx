@@ -4,7 +4,7 @@ import NewChat from "../utils/NewChat";
 
 function Navigation() {
   return (
-    <div className="navbar bg-base-100 shadow-sm">
+    <div className="navbar bg-base-100 shadow-sm px-4">
       {/* Sidebar code --start*/}
       <div className="flex-none">
         <label
@@ -28,14 +28,14 @@ function Navigation() {
         </label>
       </div>
       {/* --end */}
-      <div className="flex-none">
+      <div className="flex-none ml-2">
         <NewChat />
       </div>
-      <div className="flex-1">
-        <a className="btn btn-ghost text-xl">AI GPT</a>
+      <div className="flex-1 ml-4">
+        <a className="btn btn-ghost text-xl normal-case">AI GPT</a>
       </div>
-      <div className="flex gap-2">
-        <div className="dropdown dropdown-end">
+      <div className="flex-none gap-2">
+        {/* <div className="dropdown dropdown-end">
           <div
             tabIndex={0}
             role="button"
@@ -65,7 +65,7 @@ function Navigation() {
               <a>Logout</a>
             </li>
           </ul>
-        </div>
+        </div> */}
         <Theme />
       </div>
     </div>

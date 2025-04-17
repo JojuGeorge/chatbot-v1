@@ -46,8 +46,11 @@ function ChatHistory() {
   };
 
   useEffect(() => {
-    setChatHistory(chats);
-    handleHistoryGrouping(chats);
+    // setChatHistory(chats);
+    // handleHistoryGrouping(chats);
+    const sortedChats = [...chats].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    setChatHistory(sortedChats);
+    handleHistoryGrouping(sortedChats);
   }, [chats]);
 
   const handleChatHistorySelection = (chatId: string) => {
@@ -65,71 +68,65 @@ function ChatHistory() {
   };
 
   return (
-    <div className="p-2">
-      <div className="flex flex-row items-center gap-4 p-2">
-        <h4 className="text-xl font-bold">Chat History</h4>
+    <div className="p-2 h-full flex flex-col">
+      <div className="flex flex-row items-center justify-between gap-4 p-2 mb-2">
+        <h4 className="text-lg font-semibold">Chat History</h4>
         <button
           onClick={handleClearChatHistory}
-          className="btn btn-outline btn-secondary btn-sm"
+          className="btn btn-outline btn-error btn-xs"
+          title="Clear All History"
         >
-          ❌
+          🗑️
         </button>
       </div>
-      {/* <ul className="space-y-2">
-        {chatHistory.length > 0 &&
-          chats.map((chat) => (
-            <li
-              key={chat.chatId}
-              className={`flex flex-row items-center gap-2 p-2 rounded-lg   ${
-                chat.chatId === currentChatId && "selected"
-              }`}
-            >
-              <div
-                onClick={() => handleChatHistorySelection(chat.chatId)}
-                className="flex-1 min-w-0 hover:bg-transparent active:!bg-transparent"
-              >
-                <p className="text-sm truncate">{chat.title}</p>
-              </div>
-              <button
-                className="btn btn-outline btn-secondary btn-sm shrink-0"
-                onClick={() => handleItemDelete(chat.chatId)}
-              >
-                Del
-              </button>
-            </li>
-          ))}
-      </ul> */}
 
-      <ul className="space-y-2">
-        {chatGrouping &&
-          Object.entries(chatGrouping).map(([group, chats]) => {
+      <ul className="space-y-4 flex-1 overflow-y-auto pr-1">
+        {chatGrouping && Object.keys(chatGrouping).length > 0 ? (
+          Object.entries(chatGrouping).map(([group, chatsInGroup]) => {
             return (
               <div key={group}>
-                {group}
-                {chats.map((chat) => (
+                <h5 className="text-xs font-semibold text-gray-500 uppercase px-2 mb-1">
+                  {group}
+                </h5>
+                {chatsInGroup.map((chat) => (
                   <li
                     key={chat.chatId}
-                    className={`flex flex-row items-center gap-2 p-2 rounded-lg   ${
-                      chat.chatId === currentChatId && "selected"
+                    className={`
+                      flex flex-row items-center gap-2 p-2 rounded-md cursor-pointer 
+                      transition-colors duration-150 ease-in-out 
+                      hover:bg-base-300 
+                      ${
+                      chat.chatId === currentChatId 
+                        ? 'bg-base-300' 
+                        : 'bg-base-100 hover:bg-base-100'
                     }`}
+                    onClick={() => handleChatHistorySelection(chat.chatId)}
                   >
-                    <div
-                      onClick={() => handleChatHistorySelection(chat.chatId)}
-                      className="flex-1 min-w-0 hover:bg-transparent active:!bg-transparent"
-                    >
-                      <p className="text-sm truncate">{chat.title}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm truncate font-medium">
+                        {chat.title || `Chat from ${new Date(chat.createdAt).toLocaleTimeString()}`}
+                      </p>
                     </div>
                     <button
-                      className="btn btn-outline btn-secondary btn-sm shrink-0"
-                      onClick={() => handleItemDelete(chat.chatId)}
+                      className={`btn btn-ghost btn-xs shrink-0 ${
+                        chat.chatId === currentChatId ? 'text-primary-content hover:bg-red-500/50' : 'text-gray-400 hover:text-error hover:bg-error/10'
+                      }`}
+                      onClick={(e) => { 
+                        e.stopPropagation();
+                        handleItemDelete(chat.chatId); 
+                      }}
+                      title="Delete Chat"
                     >
-                      Del
+                      ✕
                     </button>
                   </li>
                 ))}
               </div>
             );
-          })}
+          })
+        ) : (
+          <p className="text-center text-gray-500 mt-4">No chat history yet.</p>
+        )}
       </ul>
     </div>
   );
