@@ -5,7 +5,7 @@
 - AI Chatbot
 - New Chat
 - Chat title based on the user query
-- Group chat based on creation Today | Yesterday | Previous 7 days | Previous 30 days | Month... | Year...
+- Chat Grouping based on creation Today | Yesterday | Previous 7 days | Previous 30 days | Month... | Year...
 - Collapsible Side bar
 - Chat history
   - History of each chat / day
@@ -41,29 +41,33 @@
 
 ![New Chat](public/ScreenShots/1%20new%20chat.png)
 
-#### Conversation
+#### Conversation && Sorted chats
 
 ![Conversation](public/ScreenShots/2%20convo.png)
 
-#### Clear Chat History
+#### Chat Grouping - Today | Yesterday | Previous 7 days | Previous 30 days | Month... | Year...
 
-![Clear Chat History](public/ScreenShots/3%20clear%20chat%20history.png)
-
-#### Delete Chat
-
-![Delete Chat](public/ScreenShots/4%20delete%20chat.png)
-
-#### Light Theme
-
-![Light Theme](public/ScreenShots/5%20light%20theme.png)
-
-#### Collapsible Sidebar
-
-![Sidebar Collapse](public/ScreenShots/6%20sidebar%20collapse.png)
+![Chat History Grouping](public/ScreenShots/9%20history%20grouping.png)
 
 #### Send Button Active | Disable
 
 ![Button active](public/ScreenShots/7%20Active%20btn.png)
+
+#### Clear Whole Chat History
+
+![Clear Chat History](public/ScreenShots/3%20clear%20chat%20history.png)
+
+#### Delete Individual Chat
+
+![Delete Chat](public/ScreenShots/4%20delete%20chat.png)
+
+#### Light || Dark Theme
+
+![Light Theme](public/ScreenShots/5%20light%20theme.png)
+
+#### Collapsible Sidebar && By default enabled
+
+![Sidebar Collapse](public/ScreenShots/6%20sidebar%20collapse.png)
 
 #### Loading Indicators
 
