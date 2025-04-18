@@ -1,4 +1,15 @@
-# AI Chatbot in React + Gemini API
+# AI Chatbot in React + Gemini API -
+
+This AI-powered chatbot offers a seamless conversational experience with intuitive chat organization. Users can start a New Chat, with each conversation title is generated based on their query. The sidebar provides collapsible chat history, grouped by time periods like Today, Yesterday, Previous 7/30 Days, Month, and Year for easy navigation.
+
+Key features include:
+
+- Chat history tracking with per-day logs
+- Flexible clearing options (individual chats or full history)- Auto-sorting to show latest chats first
+- Light/Dark theme for user preference
+- LocalStorage support to save chats between sessions
+
+Designed for efficiency, it ensures quick access to past conversations while maintaining a clean, user-friendly interface.
 
 ## Features
 
@@ -15,20 +26,36 @@
 - Light and Dark Theme
 - Chats are saved to localStorage
 
-### Future
-
-- Backend Node JS
-- Mongo DB
-- Authentication
-- Sign Up && Login
-
-### Technologies
+### Technologies Used
 
 - React + vite
 - TypeScript
 - Tailwind CSS
 - Daisy UI
 - Gemini API
+
+### How to Run the Application
+
+- Download | Clone the Project
+- Go inside the folder (Inside folder where Package.json file is present)
+- Open terminal in above folder directory and run below commands inside the terminal
+
+```typescript
+npm install
+```
+
+- To run the application
+
+```typescript
+npm run dev
+```
+
+### Future
+
+- Backend Node JS
+- Mongo DB
+- Authentication
+- Sign Up && Login
 
 ### TODO
 
